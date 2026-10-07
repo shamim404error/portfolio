@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUMIÈRE — Fashion Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush: #f2ddd5;
+    --rose: #d9a49a;
+    --petal: #f7ece8;
+    --mauve: #b07d74;
+    --cream: #fdf8f5;
+    --charcoal: #2c2420;
+    --warm-gray: #8a7570;
+    --white: #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    overflow-x: hidden;
+  }
+
+  /* ── LOADER ── */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--cream);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #loader.hidden { opacity: 0; visibility: hidden; }
+  .loader-word {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    color: var(--charcoal);
+    animation: fadeWord 1.6s ease forwards;
+  }
+  .loader-bar {
+    width: 120px; height: 1px;
+    background: var(--blush);
+    position: relative;
+    overflow: hidden;
+  }
+  .loader-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: var(--mauve);
+    animation: slideBar 1.4s ease forwards 0.3s;
+  }
+  @keyframes fadeWord { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes slideBar { from { left: -100%; } to { left: 100%; } }
+
+  /* ── FLOATING SHAPES ── */
+  .bg-shapes {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .shape {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217,164,154,0.18), transparent 70%);
+    animation: floatShape linear infinite;
+  }
+  .shape:nth-child(1) { width: 500px; height: 500px; top: -100px; left: -150px; animation-duration: 22s; }
+  .shape:nth-child(2) { width: 350px; height: 350px; top: 40%; right: -80px; animation-duration: 18s; animation-delay: -8s; }
+  .shape:nth-child(3) { width: 280px; height: 280px; bottom: 10%; left: 20%; animation-duration: 26s; animation-delay: -14s; }
+  @keyframes floatShape {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-40px) scale(1.05); }
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+  }
+  nav.scrolled {
+    background: rgba(253,248,245,0.82);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 1px 0 rgba(176,125,116,0.12);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.3em;
+    font-weight: 300;
+    color: var(--charcoal);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -3px; left: 0;
+    width: 0; height: 1px;
+    background: var(--rose);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover { color: var(--charcoal); }
+  .nav-links a:hover::after { width: 100%; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 1px; background: var(--charcoal); transition: 0.3s; }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    height: 100vh;
+    display: flex; align-items: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #f9ebe6 0%, #f2ddd5 40%, #e8c9bf 100%);
+  }
+  .hero-bg-img {
+    position: absolute; inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1600&q=80');
+    background-size: cover;
+    background-position: center 20%;
+    opacity: 0.28;
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 0 8%;
+    max-width: 700px;
+    animation: heroReveal 1.2s ease forwards 1.8s;
+    opacity: 0;
+  }
+  @keyframes heroReveal {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: none; }
+  }
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--mauve);
+    margin-bottom: 20px;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 8vw, 6.5rem);
+    font-weight: 300;
+    line-height: 1.02;
+    color: var(--charcoal);
+    margin-bottom: 28px;
+  }
+  .hero-title em { font-style: italic; color: var(--mauve); }
+  .hero-sub {
+    font-size: 0.88rem;
+    line-height: 1.9;
+    color: var(--warm-gray);
+    max-width: 420px;
+    margin-bottom: 44px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+  .btn-primary {
+    display: inline-block;
+    padding: 15px 44px;
+    border: 1px solid var(--charcoal);
+    color: var(--charcoal);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.45s ease;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--charcoal);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s ease;
+  }
+  .btn-primary:hover { color: var(--cream); }
+  .btn-primary:hover::before { transform: scaleX(1); }
+  .btn-primary span { position: relative; z-index: 1; }
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 10px; z-index: 2;
+    animation: heroReveal 1s ease forwards 2.4s;
+    opacity: 0;
+  }
+  .hero-scroll p { font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--warm-gray); }
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, var(--rose), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse { 0%, 100% { transform: scaleY(1); opacity: 1; } 50% { transform: scaleY(0.6); opacity: 0.4; } }
+
+  /* ── SECTIONS COMMON ── */
+  section { position: relative; z-index: 1; }
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 300;
+    line-height: 1.15;
+    color: var(--charcoal);
+    margin-bottom: 24px;
+  }
+  .section-title em { font-style: italic; }
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ── ABOUT ── */
+  #about {
+    padding: 120px 8%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    background: var(--cream);
+  }
+  .about-img-wrap {
+    position: relative;
+  }
+  .about-img-wrap::before {
+    content: '';
+    position: absolute;
+    top: 24px; left: 24px;
+    right: -24px; bottom: -24px;
+    border: 1px solid var(--blush);
+    z-index: 0;
+  }
+  .about-img-wrap img {
+    position: relative; z-index: 1;
+    width: 100%; aspect-ratio: 4/5;
+    object-fit: cover;
+    filter: saturate(0.85);
+    transition: filter 0.5s ease;
+  }
+  .about-img-wrap:hover img { filter: saturate(1); }
+  .about-text p {
+    font-size: 0.9rem;
+    line-height: 2;
+    color: var(--warm-gray);
+    font-weight: 300;
+    letter-spacing: 0.03em;
+    margin-bottom: 16px;
+  }
+  .about-stat-row {
+    display: flex; gap: 48px;
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid var(--blush);
+  }
+  .about-stat strong {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--charcoal);
+  }
+  .about-stat span {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+  }
+
+  /* ── PRODUCTS ── */
+  #products {
+    padding: 120px 8%;
+    background: var(--petal);
+  }
+  .products-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 64px;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .product-card {
+    cursor: pointer;
+    group: true;
+  }
+  .product-img-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    margin-bottom: 20px;
+    background: var(--blush);
+  }
+  .product-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scale(1);
+    transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: saturate(0.8);
+  }
+  .product-card:hover .product-img-wrap img { transform: scale(1.08); filter: saturate(1); }
+  .product-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(44,36,32,0.55) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 28px;
+  }
+  .product-card:hover .product-overlay { opacity: 1; }
+  .product-overlay-btn {
+    color: var(--white);
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.6);
+    padding: 9px 28px;
+  }
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--charcoal);
+    margin-bottom: 6px;
+  }
+  .product-desc {
+    font-size: 0.78rem;
+    color: var(--warm-gray);
+    letter-spacing: 0.05em;
+  }
+  .product-price {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: var(--mauve);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    z-index: 1000;
+    background: rgba(44,36,32,0.55);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    padding: 20px;
+  }
+  .modal-overlay.open { opacity: 1; visibility: visible; }
+  .modal {
+    background: var(--cream);
+    max-width: 820px; width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    transform: scale(0.88) translateY(30px);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+  .modal-img { aspect-ratio: 3/4; width: 100%; object-fit: cover; filter: saturate(0.85); }
+  .modal-body { padding: 48px 40px; display: flex; flex-direction: column; justify-content: center; }
+  .modal-label { font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--rose); margin-bottom: 12px; }
+  .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--charcoal); margin-bottom: 8px; }
+  .modal-price { font-size: 1rem; color: var(--mauve); letter-spacing: 0.1em; margin-bottom: 24px; }
+  .modal-desc { font-size: 0.85rem; line-height: 1.9; color: var(--warm-gray); font-weight: 300; margin-bottom: 32px; }
+  .modal-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 36px; }
+  .modal-tag { font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid var(--blush); padding: 5px 14px; color: var(--warm-gray); }
+  .modal-close {
+    position: absolute; top: 20px; right: 24px;
+    background: none; border: none;
+    font-size: 1.5rem; cursor: pointer;
+    color: var(--warm-gray); line-height: 1;
+    transition: color 0.3s;
+  }
+  .modal-close:hover { color: var(--charcoal); }
+
+  /* ── GALLERY ── */
+  #gallery { padding: 120px 8%; background: var(--cream); }
+  .gallery-header { text-align: center; margin-bottom: 64px; }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    gap: 16px;
+  }
+  .gallery-item {
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  .gallery-item:nth-child(1) { grid-row: span 2; }
+  .gallery-item:nth-child(4) { grid-column: span 2; }
+  .gallery-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    min-height: 200px;
+    transform: scale(1);
+    filter: saturate(0.7) brightness(1);
+    transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.5s ease;
+  }
+  .gallery-item:hover img { transform: scale(1.1); filter: saturate(1) brightness(1.05); }
+  .gallery-item-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(44,36,32,0.5), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    display: flex; align-items: flex-end;
+    padding: 20px;
+  }
+  .gallery-item:hover .gallery-item-overlay { opacity: 1; }
+  .gallery-item-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* ── CONTACT ── */
+  #contact {
+    padding: 120px 8%;
+    background: var(--charcoal);
+    position: relative;
+    overflow: hidden;
+  }
+  #contact::before {
+    content: 'CONTACT';
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(6rem, 18vw, 14rem);
+    font-weight: 300;
+    color: rgba(255,255,255,0.03);
+    letter-spacing: 0.1em;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    position: relative; z-index: 1;
+  }
+  .contact-info .section-label { color: var(--rose); }
+  .contact-info .section-title { color: var(--white); }
+  .contact-info p { font-size: 0.88rem; line-height: 2; color: rgba(255,255,255,0.45); font-weight: 300; margin-bottom: 40px; }
+  .contact-detail { display: flex; flex-direction: column; gap: 16px; }
+  .contact-item { font-size: 0.78rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.55); }
+  .contact-item strong { display: block; font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--rose); margin-bottom: 4px; font-weight: 400; }
+  .contact-form { display: flex; flex-direction: column; gap: 20px; }
+  .form-group { position: relative; }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--white);
+    padding: 16px 20px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+    resize: none;
+  }
+  .form-group textarea { height: 130px; }
+  .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.3); }
+  .form-group input:focus, .form-group textarea:focus {
+    border-color: var(--rose);
+    background: rgba(255,255,255,0.08);
+  }
+  .btn-submit {
+    align-self: flex-start;
+    padding: 15px 52px;
+    background: var(--rose);
+    color: var(--white);
+    border: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  .btn-submit:hover { background: var(--mauve); transform: translateX(4px); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #1e1714;
+    padding: 48px 8%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.3em;
+    font-weight: 300;
+    color: rgba(255,255,255,0.5);
+  }
+  .footer-copy { font-size: 0.68rem; letter-spacing: 0.15em; color: rgba(255,255,255,0.25); }
+  .social-links { display: flex; gap: 24px; }
+  .social-links a {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .social-links a:hover { color: var(--rose); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 900px) {
+    #about { grid-template-columns: 1fr; gap: 48px; }
+    .about-img-wrap { max-width: 420px; margin: 0 auto; }
+    .products-grid { grid-template-columns: 1fr 1fr; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; }
+    .gallery-item:nth-child(4) { grid-column: span 1; }
+    .contact-inner { grid-template-columns: 1fr; gap: 56px; }
+    .modal { grid-template-columns: 1fr; }
+    .modal-img { aspect-ratio: 16/9; }
+    nav { padding: 16px 5%; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .products-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+  }
+  @media (max-width: 600px) {
+    .products-grid { grid-template-columns: 1fr; }
+    .gallery-grid { grid-template-columns: 1fr; }
+    .gallery-item:nth-child(1) { grid-row: span 1; }
+    .about-stat-row { flex-direction: column; gap: 24px; }
+    footer { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-word">LUMIÈRE</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- BG SHAPES -->
+<div class="bg-shapes">
+  <div class="shape"></div>
+  <div class="shape"></div>
+  <div class="shape"></div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">LUMIÈRE</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#products">Collection</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-bg-img"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">SS 2026 Collection</p>
+    <h1 class="hero-title">Dressed in<br><em>soft light</em><br>& silence.</h1>
+    <p class="hero-sub">Where femininity meets restraint. A curated edit of pieces designed for the woman who moves through the world with quiet confidence.</p>
+    <a href="#products" class="btn-primary"><span>Explore Collection</span></a>
+  </div>
+  <div class="hero-scroll">
+    <p>Scroll</p>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-img-wrap reveal">
+    <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&q=80" alt="About Lumière">
+  </div>
+  <div class="about-text reveal">
+    <p class="section-label">Our Story</p>
+    <h2 class="section-title">Born from a love of <em>understated</em> elegance.</h2>
+    <p>Lumière began in a small atelier in Paris, guided by a belief that true style is never shouted — it is felt. Each piece is considered, each fabric chosen for the way it catches the light at golden hour.</p>
+    <p>We work with sustainable ateliers and small-batch craftspeople who share our commitment to slow fashion — garments made to outlast seasons and trends.</p>
+    <div class="about-stat-row">
+      <div class="about-stat">
+        <strong>12+</strong>
+        <span>Years in Fashion</span>
+      </div>
+      <div class="about-stat">
+        <strong>340+</strong>
+        <span>Pieces Created</span>
+      </div>
+      <div class="about-stat">
+        <strong>18</strong>
+        <span>Countries Worn In</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="products-header reveal">
+    <div>
+      <p class="section-label">SS 2026</p>
+      <h2 class="section-title">The <em>Collection</em></h2>
+    </div>
+    <a href="#products" class="btn-primary"><span>View All Pieces</span></a>
+  </div>
+  <div class="products-grid" id="products-grid"></div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="gallery-header reveal">
+    <p class="section-label">Moments</p>
+    <h2 class="section-title">As <em>seen</em> in light.</h2>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80" alt="Gallery 1">
+      <div class="gallery-item-overlay"><span class="gallery-item-label">Paris, 2026</span></div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80" alt="Gallery 2">
+      <div class="gallery-item-overlay"><span class="gallery-item-label">Editorial</span></div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80" alt="Gallery 3">
+      <div class="gallery-item-overlay"><span class="gallery-item-label">Campaign</span></div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80" alt="Gallery 4">
+      <div class="gallery-item-overlay"><span class="gallery-item-label">Lookbook</span></div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1562572159-4efd90232ee9?w=600&q=80" alt="Gallery 5">
+      <div class="gallery-item-overlay"><span class="gallery-item-label">Atelier</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-info reveal">
+      <p class="section-label">Get in Touch</p>
+      <h2 class="section-title">Let's <em>create</em> something beautiful.</h2>
+      <p>Whether it's a bespoke commission, a collaboration enquiry, or simply to say hello — we'd love to hear from you.</p>
+      <div class="contact-detail">
+        <div class="contact-item"><strong>Email</strong>hello@lumiere.studio</div>
+        <div class="contact-item"><strong>Studio</strong>14 Rue du Faubourg, Paris</div>
+        <div class="contact-item"><strong>Hours</strong>Mon – Fri, 10h – 18h CET</div>
+      </div>
+    </div>
+    <div class="contact-form reveal">
+      <div class="form-group">
+        <input type="text" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <input type="email" placeholder="Email address">
+      </div>
+      <div class="form-group">
+        <textarea placeholder="Your message…"></textarea>
+      </div>
+      <button class="btn-submit">Send Message</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">LUMIÈRE</span>
+  <span class="footer-copy">© 2026 Lumière Studio. All rights reserved.</span>
+  <div class="social-links">
+    <a href="#">Instagram</a>
+    <a href="#">Pinterest</a>
+    <a href="#">TikTok</a>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modal-close">×</button>
+    <img class="modal-img" id="modal-img" src="" alt="">
+    <div class="modal-body">
+      <p class="modal-label" id="modal-label"></p>
+      <h3 class="modal-title" id="modal-title"></h3>
+      <p class="modal-price" id="modal-price"></p>
+      <p class="modal-desc" id="modal-desc"></p>
+      <div class="modal-tags" id="modal-tags"></div>
+      <a href="#contact" class="btn-primary" id="modal-cta" onclick="closeModal()"><span>Enquire About This Piece</span></a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Products Data
+  const products = [
+    {
+      id: 1,
+      name: 'Celeste Slip Dress',
+      category: 'Dresses',
+      price: '€ 485',
+      desc: 'Crafted from the finest bias-cut silk charmeuse, the Celeste falls with a liquid ease. A piece for dancing in dimly lit rooms.',
+      fullDesc: 'The Celeste is an ode to effortless femininity. Bias-cut from 100% pure silk charmeuse, it moves like water. The adjustable spaghetti straps and cowl neckline create an elongated silhouette that flatters every form. Available in ivory, mocha, and midnight rose.',
+      tags: ['Silk', 'Bias-cut', 'Limited Edition'],
+      img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80'
+    },
+    {
+      id: 2,
+      name: 'Aura Linen Coat',
+      category: 'Outerwear',
+      price: '€ 790',
+      desc: 'A structured coat in washed Belgian linen. Timeless, considered, utterly essential.',
+      fullDesc: 'Tailored in our Paris atelier from double-washed Belgian linen, the Aura coat has a relaxed silhouette that sharpens at the waist with a self-tie belt. The dropped shoulders and deep pockets make it as practical as it is beautiful.',
+      tags: ['Belgian Linen', 'Handtailored', 'Sustainable'],
+      img: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80'
+    },
+    {
+      id: 3,
+      name: 'Soleil Trousers',
+      category: 'Trousers',
+      price: '€ 320',
+      desc: 'Wide-leg crepe trousers with a high waist and generous fall. For the woman who commands attention by doing nothing.',
+      fullDesc: 'These wide-leg crepe trousers are a study in understated power. A high rise waist, side zip, and fluid drape ensure they work from morning to midnight. Pair with a simple tank or the Celeste slip for an effortlessly cohesive look.',
+      tags: ['Crepe', 'Wide-leg', 'Versatile'],
+      img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80'
+    },
+    {
+      id: 4,
+      name: 'Reverie Blouse',
+      category: 'Tops',
+      price: '€ 265',
+      desc: 'Sheer organza with a whisper of structure. A blouse that feels like the beginning of a very good day.',
+      fullDesc: 'The Reverie is sheer silk organza, gathered softly at the wrists and neckline. It layers beautifully under the Aura coat or stands alone for a warm evening. Each piece is finished with hand-rolled hems — a hallmark of our atelier.',
+      tags: ['Silk Organza', 'Sheer', 'Hand-finished'],
+      img: 'https://images.unsplash.com/photo-1554568218-0f1715e72254?w=600&q=80'
+    },
+    {
+      id: 5,
+      name: 'Brume Cardigan',
+      category: 'Knitwear',
+      price: '€ 410',
+      desc: 'Cashmere in its softest form. An oversized drape that has no interest in being anything other than perfect.',
+      fullDesc: 'Knitted from Grade A Mongolian cashmere in a relaxed open-front silhouette. The Brume is heavy enough to feel substantial, light enough to fold into your bag. Wear it as a layer, a wrap, or a moment of self-care on difficult days.',
+      tags: ['Pure Cashmere', 'Oversized', 'Handknit'],
+      img: 'https://images.unsplash.com/photo-1571945192405-4b69b5652e60?w=600&q=80'
+    },
+    {
+      id: 6,
+      name: 'Lumière Bag',
+      category: 'Accessories',
+      price: '€ 620',
+      desc: 'Full-grain vegetable-tanned leather. Structured enough to carry your life. Soft enough to feel like home.',
+      fullDesc: 'Handcrafted in a small leather workshop in Tuscany, the Lumière bag uses full-grain vegetable-tanned leather that deepens in colour with every season. The minimal hardware and clean lines mean it works across every occasion — effortlessly.',
+      tags: ['Full-grain Leather', 'Handmade', 'Italy'],
+      img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80'
+    }
+  ];
+
+  // Render Products
+  const grid = document.getElementById('products-grid');
+  products.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card reveal';
+    card.innerHTML = `
+      <div class="product-img-wrap">
+        <img src="${p.img}" alt="${p.name}">
+        <div class="product-overlay">
+          <div class="product-overlay-btn">View Details</div>
+        </div>
+      </div>
+      <p class="product-desc">${p.category}</p>
+      <p class="product-name">${p.name}</p>
+      <p class="product-price">${p.price}</p>
+    `;
+    card.addEventListener('click', () => openModal(p));
+    grid.appendChild(card);
+  });
+
+  // Modal
+  const overlay = document.getElementById('modal-overlay');
+  function openModal(p) {
+    document.getElementById('modal-img').src = p.img;
+    document.getElementById('modal-label').textContent = p.category;
+    document.getElementById('modal-title').textContent = p.name;
+    document.getElementById('modal-price').textContent = p.price;
+    document.getElementById('modal-desc').textContent = p.fullDesc;
+    const tagsEl = document.getElementById('modal-tags');
+    tagsEl.innerHTML = p.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // Loader
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('hidden');
+    }, 1800);
+  });
+
+  // Scroll Nav
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        entry.target.style.transitionDelay = `${(Array.from(revealEls).indexOf(entry.target) % 4) * 0.08}s`;
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Submit button feedback
+  document.querySelector('.btn-submit').addEventListener('click', function() {
+    this.textContent = 'Message Sent ✓';
+    this.style.background = '#8a7570';
+    setTimeout(() => { this.textContent = 'Send Message'; this.style.background = ''; }, 3000);
+  });
+</script>
+</body>
+</html>
